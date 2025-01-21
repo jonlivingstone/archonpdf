@@ -4,7 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	mergepdf "mergeoddevenpages/internal"
+	mergepdf "mergepdf/internal"
 	"os"
 	"path/filepath"
 )

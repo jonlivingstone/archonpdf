@@ -3,6 +3,7 @@ package mergepdf
 import (
 	"fmt"
 	"log"
+	"math"
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -10,7 +11,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/fsnotify/fsnotify"
+	"github.com/jhenstridge/go-inotify"
 )
 
 func processFile(inputDir, mergeDir, oddPrefix, evenPrefix string) error {
@@ -76,50 +77,38 @@ func WatchFolder(inputDir, mergeDir, oddPrefix, evenPrefix string) {
 	signal.Notify(signalChan, syscall.SIGINT, syscall.SIGTERM)
 
 	// Create a new watcher
-	watcher, err := fsnotify.NewWatcher()
+	watcher, err := inotify.NewWatcher()
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer watcher.Close()
 
-	err = watcher.Add(inputDir)
+	_, err = watcher.AddWatch(inputDir, inotify.IN_ALL_EVENTS)
 	if err != nil {
 		log.Fatalf("cannot watch directory %s: %s\n", inputDir, err)
 	}
 
 	// Event loop to listen for events
 	exiting := false
-	var timer *time.Timer = time.NewTimer(0)
+	const infinite = math.MaxInt32 * time.Second
+	var timer *time.Timer = time.NewTimer(infinite)
 	for !exiting {
 		select {
-		case event := <-watcher.Events:
-			// Check if the event is file creation
-			if event.Op&fsnotify.Create == fsnotify.Create ||
-				event.Op&fsnotify.Write == fsnotify.Write {
+		case event := <-watcher.Event:
+			if event.Mask&inotify.IN_CLOSE_WRITE == inotify.IN_CLOSE_WRITE {
 				if filepath.Ext(event.Name) == ".pdf" {
-					timer = time.NewTimer(500 * time.Millisecond)
-					// os.Rename(event.Name, event.Name+".done")
-					break
-				}
-
-				if filepath.Ext(event.Name) == ".done" {
-					// Process the file (you can replace this with your processing logic)
-					err = processFile(inputDir, mergeDir, oddPrefix, evenPrefix)
-					if err != nil {
-						fmt.Println(err)
-						exiting = true
-					}
+					timer = time.NewTimer(3 * time.Second)
 				}
 			}
-		case err := <-watcher.Errors:
-			log.Println("Error:", err)
 		case <-timer.C:
-			err = renamePdfFiles(inputDir)
+			renamePdfFiles(inputDir)
+			err = processFile(inputDir, mergeDir, oddPrefix, evenPrefix)
 			if err != nil {
-				log.Fatal(err)
-				return
+				fmt.Println(err)
 			}
+
 		case <-signalChan:
+			watcher.Close()
 			exiting = true
 		}
 	}
