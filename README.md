@@ -2,7 +2,19 @@
 
 Archon PDF is a small server that merges two PDF files, one representing the odd and another the even pages (also known as recto and verso).
 
-This utility is useful is you have a scanner with a document feeder, but which cannot process both sides of the pages at once.
+This utility is useful is you have a scanner with a document feeder, but which cannot process both sides of the pages at once. This will transform your single-sided scanner in a both-sides scanner (almost)! The main advantage of this tool is that **you don't have to reverse the pages**, it will do it for you!
+
+### Usage
+
+After configuration, scan large two-sided documents at blazing speeds!
+
+1. Put the document as normally in your document feeder. The odd side of the page is pointing up. 
+2. Scan the document normally saving to a 'odd' network share.
+3. Flip the document around. You should see the last (even) page of the document. Do not change the order of the pages.
+4. Scan the document a second time, this time saving to a 'even' network share.
+5. Wait a few minutes or seconds.. and you should see the merged document in your favorite document manager!
+
+If you have many documents to scan, you don't need to wait for each document to be fully processed, you may start to scan the odd pages of your next document a few seconds after finishing the even pages of the previous document.
 
 Used in combination with a document management system such as [Paperless-ngx](https://github.com/paperless-ngx/paperless-ngx), this enables you to scan and ingest large two-sided documents at great speed!
 
@@ -18,7 +30,11 @@ The only dependency is **Golang**. Follow the installation instructions [here](h
 
 Use the command `make` to check all dependencies are configured correctly.
 
-## Usage
+### Important
+
+Every time the service is restarted, the content of the `odd` and `even` directories are reset.
+
+## Installation
 
 ### Standalone
 1. On the machine that will process files, create a directory that your scanner/printer will write pages to. Typically this will be a SMB mount point. For instance `\\server\archonpdf_input`.
