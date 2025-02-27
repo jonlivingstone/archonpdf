@@ -9,6 +9,6 @@ RUN mkdir -p /merged
 VOLUME /input
 VOLUME /merged
 
-COPY mergepdf .
+COPY build/archonpdf .
 
-CMD ["/usr/local/bin/mergepdf", "-input=/input", "-merged=/merged"]
+CMD ["/usr/local/bin/archonpdf", "-input=/input", "-merged=/merged"]

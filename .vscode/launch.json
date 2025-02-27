@@ -11,8 +11,8 @@
             "mode": "debug",
             "program": "${workspaceFolder}/cmd",
             "args": [
-                "-input=/var/local/mergepdf/input",
-                "-merged=/var/local/mergepdf/merged"
+                "-input=build/input",
+                "-merged=build/merged"
             ]
         },
     

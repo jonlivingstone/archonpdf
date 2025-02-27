@@ -1,4 +1,4 @@
-package mergepdf
+package archonpdf
 
 import (
 	"bufio"

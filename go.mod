@@ -1,6 +1,6 @@
-module mergepdf
+module archonpdf
 
-go 1.22.2
+go 1.24.0
 
 require (
 	github.com/jhenstridge/go-inotify v0.0.0-20221229091821-b0d1463614ad
